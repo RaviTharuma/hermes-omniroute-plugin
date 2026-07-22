@@ -37,12 +37,26 @@ class OmniRouteProfile(ProviderProfile):
     """OmniRoute OpenAI-compatible model router profile."""
 
     def fetch_models(
-        self, *, api_key: Optional[str] = None, timeout: float = 8.0
+        self,
+        *,
+        api_key: Optional[str] = None,
+        base_url: Optional[str] = None,
+        timeout: float = 8.0,
     ) -> Optional[List[str]]:
-        """Fetch available models from OmniRoute GET /v1/models."""
+        """Fetch available models from OmniRoute GET /v1/models.
+
+        Signature matches Hermes ``ProviderProfile.fetch_models`` so
+        ``provider_model_ids()`` can pass the configured base URL. Older
+        overrides that omitted ``base_url`` raised TypeError and Hermes
+        swallowed it, leaving the model picker empty.
+        """
         import httpx
 
-        base_url = getattr(self, "base_url", DEFAULT_BASE_URL)
+        effective_base = (
+            base_url
+            or getattr(self, "base_url", None)
+            or DEFAULT_BASE_URL
+        )
         token = api_key or os.environ.get("OMNIROUTE_API_KEY", "")
 
         headers: Dict[str, str] = {}
@@ -52,7 +66,9 @@ class OmniRouteProfile(ProviderProfile):
         try:
             with httpx.Client() as client:
                 resp = client.get(
-                    f"{base_url}/models", headers=headers, timeout=timeout
+                    f"{str(effective_base).rstrip('/')}/models",
+                    headers=headers,
+                    timeout=timeout,
                 )
                 resp.raise_for_status()
                 data: Dict[str, Any] = resp.json()

@@ -76,6 +76,45 @@ class TestFetchModels:
         assert "openai/gpt-4o-mini" in result
         assert len(result) == 3
 
+
+    def test_fetch_models_accepts_base_url(self, registered_profile):
+        """Hermes provider_model_ids always passes base_url=...; must not TypeError."""
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"data": [{"id": "override-model"}]}
+        mock_response.raise_for_status = MagicMock()
+        mock_client = MagicMock()
+        mock_client.__enter__ = MagicMock(return_value=mock_client)
+        mock_client.__exit__ = MagicMock(return_value=False)
+        mock_client.get = MagicMock(return_value=mock_response)
+
+        with patch("httpx.Client", return_value=mock_client):
+            result = registered_profile.fetch_models(
+                api_key="test-token",
+                base_url="https://custom.example/v1",
+            )
+
+        assert result == ["override-model"]
+        url = mock_client.get.call_args.args[0]
+        assert url == "https://custom.example/v1/models"
+
+    def test_fetch_models_base_url_strips_trailing_slash(self, registered_profile):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"data": [{"id": "m"}]}
+        mock_response.raise_for_status = MagicMock()
+        mock_client = MagicMock()
+        mock_client.__enter__ = MagicMock(return_value=mock_client)
+        mock_client.__exit__ = MagicMock(return_value=False)
+        mock_client.get = MagicMock(return_value=mock_response)
+
+        with patch("httpx.Client", return_value=mock_client):
+            registered_profile.fetch_models(
+                api_key="t",
+                base_url="https://custom.example/v1/",
+            )
+
+        url = mock_client.get.call_args.args[0]
+        assert url == "https://custom.example/v1/models"
+
     def test_fetch_models_sends_auth_header(self, registered_profile):
         """fetch_models sends Bearer token in Authorization header."""
         mock_response = MagicMock()

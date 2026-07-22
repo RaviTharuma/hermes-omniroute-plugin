@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.2] - 2026-07-22
+
+### Fixed
+- **Model provider**: `OmniRouteProfile.fetch_models` now accepts `base_url` to match Hermes `ProviderProfile.fetch_models`. Hermes `provider_model_ids()` always passes `base_url=...`; the previous signature rejected that kwarg with `TypeError`, which Hermes swallowed, so the model picker showed **0 OmniRoute models** even when `/v1/models` was healthy.
+
 ## [0.3.0] - 2026-06-22
 
 ### Added
