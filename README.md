@@ -43,7 +43,7 @@ export OMNIROUTE_IMAGE_MODEL=... optional, overrides config image model
 export OMNIROUTE_SEARCH_PROVIDER=... optional, pin search provider e.g. tavily-search
 export OMNIROUTE_FETCH_PROVIDER=... optional, pin extract/scrape provider e.g. tavily-search
 export OMNIROUTE_TTS_MODEL=... optional, overrides config TTS model (default: openai/tts-1)
-export OMNIROUTE_STT_MODEL=... optional, overrides config STT model (default: deepgram/nova-3)
+export OMNIROUTE_STT_MODEL=... optional, overrides config STT model (default: openai/whisper-1)
 ```
 
 Default model when none is configured: `antigravity/gemini-3.1-flash-image`.
@@ -181,13 +181,15 @@ backend in `~/.hermes/config.yaml`:
 stt:
   provider: omniroute
   omniroute:
-    model: deepgram/nova-3   # optional; OMNIROUTE_STT_MODEL env overrides
+    model: openai/whisper-1  # optional; OMNIROUTE_STT_MODEL env overrides
     # token: <token>         # optional, prefer OMNIROUTE_API_KEY
 ```
 
 Transcribes via OpenAI-compatible `POST /v1/audio/transcriptions` (multipart
 upload: `{file, model, language, response_format}`) and returns the transcript
-text. Known transcription models: `deepgram/nova-3`, `assemblyai/best`. Like
+text. Default model is `openai/whisper-1`. For Nova-3 via OpenRouter use
+`openrouter/deepgram/nova-3`. Bare `deepgram/nova-3` is native Deepgram and
+needs a Deepgram key on the OmniRoute instance. Like
 TTS, the provider registers and appears in `hermes tools` without a token; the
 token is only required at transcribe time, and resolves from `OMNIROUTE_API_KEY`
 env, `stt.omniroute.token` config, then the shared Omniroute

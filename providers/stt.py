@@ -29,7 +29,9 @@ logger = logging.getLogger(__name__)
 # A model only works if the Omniroute instance has credentials for that
 # provider — failure surfaces at transcribe() time, not here.
 _STT_MODEL_CATALOG: List[Dict[str, Any]] = [
-    {"id": "deepgram/nova-3", "display": "Deepgram Nova-3"},
+    {"id": "openai/whisper-1", "display": "OpenAI Whisper-1"},
+    {"id": "openrouter/deepgram/nova-3", "display": "Deepgram Nova-3 (OpenRouter)"},
+    {"id": "deepgram/nova-3", "display": "Deepgram Nova-3 (native)"},
     {"id": "assemblyai/best", "display": "AssemblyAI Best"},
 ]
 

@@ -69,6 +69,7 @@ class TestModels:
     @patch.dict(os.environ, {}, clear=True)
     def test_default_model_falls_back_to_constant(self):
         assert _make_provider().default_model() == DEFAULT_STT_MODEL
+        assert DEFAULT_STT_MODEL == "openai/whisper-1"
 
     @patch.dict(os.environ, {"OMNIROUTE_STT_MODEL": "custom/model"}, clear=True)
     def test_resolve_model_explicit_arg_wins(self):

@@ -19,10 +19,12 @@ DEFAULT_BASE_URL = "https://omniroute.josevictor.me/api/v1"
 # OMNIROUTE_TTS_MODEL env var or tts.omniroute.model config key.
 DEFAULT_TTS_MODEL = "openai/tts-1"
 
-# Default STT (transcription) model when none configured. Set to a provider
-# known-configured on the target instance. Users override via
-# OMNIROUTE_STT_MODEL env var or stt.omniroute.model config key.
-DEFAULT_STT_MODEL = "deepgram/nova-3"
+# Default STT (transcription) model when none configured. Must be a
+# fully-qualified OmniRoute id whose first segment is a commonly configured
+# provider. Bare `deepgram/nova-3` is native Deepgram and 400s without that
+# key; use `openrouter/deepgram/nova-3` for Nova-3 via OpenRouter.
+# Users override via OMNIROUTE_STT_MODEL or stt.omniroute.model.
+DEFAULT_STT_MODEL = "openai/whisper-1"
 
 # Default video model when none configured. Set to a provider/model known
 # configured on the target instance. Users override via OMNIROUTE_VIDEO_MODEL
