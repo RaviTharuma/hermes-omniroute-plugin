@@ -115,6 +115,24 @@ class TestFetchModels:
         url = mock_client.get.call_args.args[0]
         assert url == "https://custom.example/v1/models"
 
+    def test_fetch_models_host_root_uses_v1_models(self, registered_profile):
+        """A dashboard host-root base_url must not request GET /models."""
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"data": [{"id": "m"}]}
+        mock_response.raise_for_status = MagicMock()
+        mock_client = MagicMock()
+        mock_client.__enter__ = MagicMock(return_value=mock_client)
+        mock_client.__exit__ = MagicMock(return_value=False)
+        mock_client.get = MagicMock(return_value=mock_response)
+
+        with patch("httpx.Client", return_value=mock_client):
+            registered_profile.fetch_models(
+                api_key="t",
+                base_url="https://omniroute.josevictor.me",
+            )
+
+        assert mock_client.get.call_args.args[0] == "https://omniroute.josevictor.me/v1/models"
+
     def test_fetch_models_sends_auth_header(self, registered_profile):
         """fetch_models sends Bearer token in Authorization header."""
         mock_response = MagicMock()

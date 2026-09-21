@@ -22,6 +22,21 @@ from providers.base import ProviderProfile
 logger = logging.getLogger(__name__)
 
 DEFAULT_BASE_URL = "https://omniroute.josevictor.me/api/v1"
+
+
+def normalize_models_url(base_url: str) -> str:
+    """Reduce a configured base URL to ``{host}/v1/models``.
+
+    Users set host roots, ``/v1``, ``/api``, or ``/api/v1``. Appending
+    ``/models`` onto those forms hits ``/models`` or ``/api/v1/models``.
+    Strip the known suffixes, then use the canonical catalog path.
+    """
+    root = (base_url or "").strip().rstrip("/")
+    for suffix in ("/api/v1", "/v1", "/api"):
+        if root.endswith(suffix):
+            root = root[: -len(suffix)].rstrip("/")
+            break
+    return f"{root}/v1/models"
 DEFAULT_MODEL = "openai/gpt-4o-mini"
 
 _FALLBACK_MODELS = (
@@ -66,7 +81,7 @@ class OmniRouteProfile(ProviderProfile):
         try:
             with httpx.Client() as client:
                 resp = client.get(
-                    f"{str(effective_base).rstrip('/')}/models",
+                    normalize_models_url(str(effective_base)),
                     headers=headers,
                     timeout=timeout,
                 )
